@@ -1,0 +1,1 @@
+# amplify-tools-gradle-plugin
