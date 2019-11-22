@@ -15,7 +15,7 @@ publishing {
     publications {
         pluginPublication(MavenPublication) {
             from components.java
-            groupId 'com.amplifyframework'
+            groupId 'com.amazonaws'
             artifactId 'amplify-tools-gradle-plugin-beta'
             version VERSION_NAME + "-SNAPSHOT"
         }

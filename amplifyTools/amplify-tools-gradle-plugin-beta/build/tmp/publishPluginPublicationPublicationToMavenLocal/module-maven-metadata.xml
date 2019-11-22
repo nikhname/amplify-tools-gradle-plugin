@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <metadata>
-  <groupId>com.amplifyframework</groupId>
+  <groupId>com.amazonaws</groupId>
   <artifactId>amplify-tools-gradle-plugin-beta</artifactId>
   <versioning>
     <latest>0.1.0-SNAPSHOT</latest>
@@ -9,6 +9,6 @@
       <version>0.1.0</version>
       <version>0.1.0-SNAPSHOT</version>
     </versions>
-    <lastUpdated>20191119213849</lastUpdated>
+    <lastUpdated>20191122225701</lastUpdated>
   </versioning>
 </metadata>
