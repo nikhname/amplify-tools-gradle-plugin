@@ -5,6 +5,7 @@ class AmplifyTools implements Plugin<Project> {
 
     void apply(Project project) {
         def doesNodeExist = true
+        def doesGradleConfigExist
 
         def profile = 'default'
         def accessKeyId = null
@@ -25,7 +26,7 @@ class AmplifyTools implements Plugin<Project> {
         }
 
         project.task('createAmplifyApp') {
-            def doesGradleConfigExist = project.file('./amplify-gradle-config.json').exists()
+            doesGradleConfigExist = project.file('./amplify-gradle-config.json').exists()
             if (doesNodeExist && !doesGradleConfigExist) {
                 project.exec {
                     commandLine 'npx', 'amplify-app@canary', '--platform', 'android'
