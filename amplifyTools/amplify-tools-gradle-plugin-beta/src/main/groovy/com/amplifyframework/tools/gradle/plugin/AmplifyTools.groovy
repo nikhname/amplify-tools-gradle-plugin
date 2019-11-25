@@ -2,7 +2,6 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 
 class AmplifyTools implements Plugin<Project> {
-
     void apply(Project project) {
         def doesNodeExist = true
         def doesGradleConfigExist
@@ -103,13 +102,16 @@ class AmplifyTools implements Plugin<Project> {
         }
 
         project.task('addModelgenToWorkspace') {
-            if (!doesGradleConfigExist) {
-                //Open file
-                def xml = new XmlParser().parse('./.idea/workspace.xml')
-                def ProjectTypeNode = xml.component.find {
-                    it.'@name' == 'RunManager'
-                } as Node
+            //Open file
+            def xml = new XmlParser().parse('./.idea/workspace.xml')
+            def RunManagerNode = xml.component.find {
+                it.'@name' == 'RunManager'
+            } as Node
+            def configModelgenCheck = RunManagerNode.children().find {
+                it.'@name' == 'modelgen'
+            } as Node
 
+            if (!configModelgenCheck) {
                 // Nested nodes for modelgen run configuration
                 def configurationNode = new Node(null, 'configuration', [name: "modelgen", type:"GradleRunConfiguration", factoryName:"Gradle", nameIsGenerated:"true"])
                 def externalSystemNode = new Node(configurationNode, 'ExternalSystemSettings')
@@ -126,7 +128,7 @@ class AmplifyTools implements Plugin<Project> {
                 def systemDebugNode = new Node(configurationNode, 'GradleScriptDebugEnabled', null, true)
                 def methodNode = new Node(configurationNode, 'method', [v:"2"])
 
-                ProjectTypeNode.append(configurationNode)
+                RunManagerNode.append(configurationNode)
 
                 //Save File
                 def writer = new FileWriter('./.idea/workspace.xml')
@@ -137,13 +139,16 @@ class AmplifyTools implements Plugin<Project> {
         }
 
         project.task('addAmplifyPushToWorkspace') {
-            if (!doesGradleConfigExist) {
-                //Open file
-                def xml = new XmlParser().parse('./.idea/workspace.xml')
-                def ProjectTypeNode = xml.component.find {
-                    it.'@name' == 'RunManager'
-                } as Node
+            //Open file
+            def xml = new XmlParser().parse('./.idea/workspace.xml')
+            def RunManagerNode = xml.component.find {
+                it.'@name' == 'RunManager'
+            } as Node
+            def configAmplifyPushCheck = RunManagerNode.children().find {
+                it.'@name' == 'amplifyPush'
+            } as Node
 
+            if (!configAmplifyPushCheck) {
                 // Nested nodes for amplifyPush run configuration
                 def configurationNode = new Node(null, 'configuration', [name: "amplifyPush", type:"GradleRunConfiguration", factoryName:"Gradle", nameIsGenerated:"true"])
                 def externalSystemNode = new Node(configurationNode, 'ExternalSystemSettings')
@@ -160,7 +165,7 @@ class AmplifyTools implements Plugin<Project> {
                 def systemDebugNode = new Node(configurationNode, 'GradleScriptDebugEnabled', null, true)
                 def methodNode = new Node(configurationNode, 'method', [v:"2"])
 
-                ProjectTypeNode.append(configurationNode)
+                RunManagerNode.append(configurationNode)
 
                 //Save File
                 def writer = new FileWriter('./.idea/workspace.xml')
@@ -170,11 +175,9 @@ class AmplifyTools implements Plugin<Project> {
             }
         }
 
-        project.addModelgenToWorkspace.mustRunAfter('verifyNode')
-        project.addAmplifyPushToWorkspace.mustRunAfter('addModelgenToWorkspace')
-        project.createAmplifyApp.mustRunAfter('addAmplifyPushToWorkspace')
-        project.getConfig.mustRunAfter('createAmplifyApp')
-        project.modelgen.mustRunAfter('getConfig')
-        project.amplifyPush.mustRunAfter('getConfig')
+        project.createAmplifyApp.dependsOn('verifyNode')
+        project.getConfig.dependsOn('createAmplifyApp')
+        project.modelgen.dependsOn('getConfig')
+        project.amplifyPush.dependsOn('getConfig')
     }
 }
