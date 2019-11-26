@@ -28,7 +28,7 @@ class AmplifyTools implements Plugin<Project> {
             doesGradleConfigExist = project.file('./amplify-gradle-config.json').exists()
             if (doesNodeExist && !doesGradleConfigExist) {
                 project.exec {
-                    commandLine 'npx', 'amplify-app@canary', '--platform', 'android'
+                    commandLine 'npx', 'amplify-app', '--platform', 'android'
                 }
             }
         }
