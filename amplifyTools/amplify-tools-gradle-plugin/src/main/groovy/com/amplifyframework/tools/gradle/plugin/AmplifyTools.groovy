@@ -49,24 +49,33 @@ class AmplifyTools implements Plugin<Project> {
 
         project.task('datastoreSync') {
             def transformConfFile = project.file('./amplify/backend/api/amplifyDatasource/transform.conf.json')
-            def tranformConfText = transformConfFile.text
-            def jsonSlurper = new groovy.json.JsonSlurper()
-            def transformConfJson = jsonSlurper.parseText(tranformConfText)
-
-            def resolverConfigMap = ['ResolverConfig':
-                                             ['project':
-                                                      ['ConflictHandler': 'AUTOMERGE',
-                                                       'ConflictDetection': 'VERSION']
-                                             ]
-                                    ]
-            if (!syncEnabled) {
-                transformConfJson.remove('ResolverConfig')
-            } else if (!transformConfJson.ResolverConfig) {
-                transformConfJson << resolverConfigMap
+            new File('./amplify/backend/api').eachFileRecurse(groovy.io.FileType.FILES) {
+              if (it.name.endsWith('transform.conf.json')) {
+                  transformConfFile = project.file(it)
+              }
             }
-            def transformConfJsonStr = groovy.json.JsonOutput.toJson(transformConfJson)
-            def transformConfJsonStrPretty = groovy.json.JsonOutput.prettyPrint(transformConfJsonStr)
-            transformConfFile.write(transformConfJsonStrPretty)
+            if (transformConfFile.exists()) {
+                def tranformConfText = transformConfFile.text
+                def jsonSlurper = new groovy.json.JsonSlurper()
+                def transformConfJson = jsonSlurper.parseText(tranformConfText)
+
+                def resolverConfigMap = ['ResolverConfig':
+                                                 ['project':
+                                                          ['ConflictHandler'  : 'AUTOMERGE',
+                                                           'ConflictDetection': 'VERSION']
+                                                 ]
+                ]
+                if (!syncEnabled) {
+                    transformConfJson.remove('ResolverConfig')
+                } else if (!transformConfJson.ResolverConfig) {
+                    transformConfJson << resolverConfigMap
+                }
+                def transformConfJsonStr = groovy.json.JsonOutput.toJson(transformConfJson)
+                def transformConfJsonStrPretty = groovy.json.JsonOutput.prettyPrint(transformConfJsonStr)
+                transformConfFile.write(transformConfJsonStrPretty)
+            } else {
+                println("Transform configuration not found")
+            }
         }
 
         project.task('modelgen') {
