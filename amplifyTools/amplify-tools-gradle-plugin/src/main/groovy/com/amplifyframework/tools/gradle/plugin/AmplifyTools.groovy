@@ -73,8 +73,6 @@ class AmplifyTools implements Plugin<Project> {
                 def transformConfJsonStr = groovy.json.JsonOutput.toJson(transformConfJson)
                 def transformConfJsonStrPretty = groovy.json.JsonOutput.prettyPrint(transformConfJsonStr)
                 transformConfFile.write(transformConfJsonStrPretty)
-            } else {
-                println("Transform configuration not found")
             }
         }
 
