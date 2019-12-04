@@ -1,2 +1,2 @@
-include ':app', ':amplify-tools-gradle-plugin-beta'
+include ':app', ':amplify-tools-gradle-plugin'
 rootProject.name='amplifyTools'
