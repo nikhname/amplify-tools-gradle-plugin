@@ -28,8 +28,13 @@ class AmplifyTools implements Plugin<Project> {
         project.task('createAmplifyApp') {
             doesGradleConfigExist = project.file('./amplify-gradle-config.json').isFile()
             if (doesNodeExist && !doesGradleConfigExist) {
-                project.exec {
-                    commandLine 'npx', 'amplify-app', '--platform', 'android'
+                try {
+                    project.exec {
+                        commandLine 'npx', 'amplify-app', '--platform', 'android'
+                    }
+                } catch (error) {
+                    def errorMessage = error.getMessage()
+                    println("There was an error with amplify-app: $errorMessage")
                 }
             }
         }
