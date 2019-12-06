@@ -10,8 +10,8 @@ class AmplifyTools implements Plugin<Project> {
         def accessKeyId = null
         def secretAccessKey = null
         def region = null
-        def envName = null
-        def syncEnabled = null
+        def envName = 'amplify'
+        def syncEnabled = 'true'
 
         project.task('verifyNode') {
             try {
@@ -26,7 +26,7 @@ class AmplifyTools implements Plugin<Project> {
         }
 
         project.task('createAmplifyApp') {
-            doesGradleConfigExist = project.file('./amplify-gradle-config.json').exists()
+            doesGradleConfigExist = project.file('./amplify-gradle-config.json').isFile()
             if (doesNodeExist && !doesGradleConfigExist) {
                 project.exec {
                     commandLine 'npx', 'amplify-app', '--platform', 'android'
@@ -36,15 +36,17 @@ class AmplifyTools implements Plugin<Project> {
 
         project.task('getConfig') {
             def inputConfigFile = project.file('./amplify-gradle-config.json')
-            def configText = inputConfigFile.text
-            def jsonSlurper = new groovy.json.JsonSlurper()
-            def configJson = jsonSlurper.parseText(configText)
-            profile = configJson.profile
-            accessKeyId = configJson.accessKeyId
-            secretAccessKey = configJson.secretAccessKeyId
-            region = configJson.region
-            envName = configJson.envName
-            syncEnabled = configJson.syncEnabled
+            if (inputConfigFile.isFile()) {
+                def configText = inputConfigFile.text
+                def jsonSlurper = new groovy.json.JsonSlurper()
+                def configJson = jsonSlurper.parseText(configText)
+                profile = configJson.profile
+                accessKeyId = configJson.accessKeyId
+                secretAccessKey = configJson.secretAccessKeyId
+                region = configJson.region
+                envName = configJson.envName
+                syncEnabled = configJson.syncEnabled
+            }
         }
 
         project.task('datastoreSync') {
@@ -54,7 +56,7 @@ class AmplifyTools implements Plugin<Project> {
                   transformConfFile = project.file(it)
               }
             }
-            if (transformConfFile.exists()) {
+            if (transformConfFile.isFile()) {
                 def tranformConfText = transformConfFile.text
                 def jsonSlurper = new groovy.json.JsonSlurper()
                 def transformConfJson = jsonSlurper.parseText(tranformConfText)
