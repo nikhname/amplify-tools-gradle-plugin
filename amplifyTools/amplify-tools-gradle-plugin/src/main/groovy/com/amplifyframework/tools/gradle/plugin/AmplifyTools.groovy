@@ -26,7 +26,7 @@ class AmplifyTools implements Plugin<Project> {
         }
 
         project.task('createAmplifyApp') {
-            doesGradleConfigExist = project.file('./amplify-gradle-config.json').isFile()
+            doesGradleConfigExist = project.file('amplify-gradle-config.json').isFile()
             if (doesNodeExist && !doesGradleConfigExist) {
                 project.exec {
                     commandLine 'npx', 'amplify-app', '--platform', 'android'
@@ -35,7 +35,7 @@ class AmplifyTools implements Plugin<Project> {
         }
 
         project.task('getConfig') {
-            def inputConfigFile = project.file('./amplify-gradle-config.json')
+            def inputConfigFile = project.file('amplify-gradle-config.json')
             if (inputConfigFile.isFile()) {
                 def configText = inputConfigFile.text
                 def jsonSlurper = new groovy.json.JsonSlurper()
@@ -50,10 +50,12 @@ class AmplifyTools implements Plugin<Project> {
         }
 
         project.task('datastoreSync') {
-            def transformConfFile = project.file('./amplify/backend/api/amplifyDatasource/transform.conf.json')
-            new File('./amplify/backend/api').eachFileRecurse(groovy.io.FileType.FILES) {
-                if (it.name.endsWith('transform.conf.json')) {
-                    transformConfFile = project.file(it)
+            def transformConfFile = project.file('amplify/backend/api/amplifyDatasource/transform.conf.json')
+            if (project.file('amplify').isFile()) {
+                new File('amplify/backend/api').eachFileRecurse(groovy.io.FileType.FILES) {
+                    if (it.name.endsWith('transform.conf.json')) {
+                        transformConfFile = project.file(it)
+                    }
                 }
             }
             if (transformConfFile.isFile()) {
