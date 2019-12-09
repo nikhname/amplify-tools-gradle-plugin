@@ -51,7 +51,7 @@ class AmplifyTools implements Plugin<Project> {
 
         project.task('datastoreSync') {
             def transformConfFile = project.file('amplify/backend/api/amplifyDatasource/transform.conf.json')
-            if (project.file('amplify').isFile()) {
+            if (project.file('amplify/backend/api').exists()) {
                 new File('amplify/backend/api').eachFileRecurse(groovy.io.FileType.FILES) {
                     if (it.name.endsWith('transform.conf.json')) {
                         transformConfFile = project.file(it)
