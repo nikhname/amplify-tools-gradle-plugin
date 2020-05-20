@@ -1,13 +1,15 @@
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.apache.tools.ant.taskdefs.condition.Os
 import groovy.json.JsonSlurper
 import groovy.json.JsonOutput
 
-class AmplifyTools implements Plugin<Project> {
+class amplifytools implements Plugin<Project> {
     void apply(Project project) {
         def doesNodeExist = true
         def doesGradleConfigExist
 
+        // profile name can be changed in amplify-gradle-config
         def profile = 'default'
         def accessKeyId = null
         def secretAccessKey = null
@@ -30,8 +32,14 @@ class AmplifyTools implements Plugin<Project> {
         project.task('createAmplifyApp') {
             doesGradleConfigExist = project.file('amplify-gradle-config.json').isFile()
             if (doesNodeExist && !doesGradleConfigExist) {
-                project.exec {
-                    commandLine 'npx', 'amplify-app', '--platform', 'android'
+                if(Os.isFamily(Os.FAMILY_WINDOWS)) {
+                    project.exec {
+                        commandLine 'npx.cmd', 'amplify-app', '--platform', 'android'
+                    }
+                } else {
+                    project.exec {
+                        commandLine 'npx', 'amplify-app', '--platform', 'android'
+                    }
                 }
             }
         }
@@ -94,6 +102,7 @@ class AmplifyTools implements Plugin<Project> {
                 }
             }
         }
+        project.modelgen.dependsOn('datastoreSync')
 
         project.task('amplifyPush') {
             def AWSCLOUDFORMATIONCONFIG
@@ -132,16 +141,29 @@ class AmplifyTools implements Plugin<Project> {
             doLast {
                 def doesLocalEnvExist = project.file('./amplify/.config/local-env-info.json').exists()
                 if (doesLocalEnvExist) {
-                    project.exec {
-                        commandLine 'amplify', 'push', '--yes'
+                    if(Os.isFamily(Os.FAMILY_WINDOWS)) {
+                        project.exec {
+                            commandLine 'amplify.cmd', 'push', '--yes'
+                        }
+                    } else {
+                        project.exec {
+                            commandLine 'amplify', 'push', '--yes'
+                        }
                     }
                 } else {
-                    project.exec {
-                        commandLine 'amplify', 'init', '--amplify', AMPLIFY, '--providers', PROVIDERS, '--yes'
+                    if(Os.isFamily(Os.FAMILY_WINDOWS)) {
+                        project.exec {
+                            commandLine 'amplify.cmd', 'init', '--amplify', AMPLIFY, '--providers', PROVIDERS, '--yes'
+                        }
+                    } else {
+                        project.exec {
+                            commandLine 'amplify', 'init', '--amplify', AMPLIFY, '--providers', PROVIDERS, '--yes'
+                        }
                     }
                 }
             }
         }
+        project.amplifyPush.dependsOn('datastoreSync')
 
         project.task('addModelgenToWorkspace') {
             if(project.file('./.idea/workspace.xml').exists()) {
@@ -181,7 +203,6 @@ class AmplifyTools implements Plugin<Project> {
                 }
             }
         }
-        project.modelgen.dependsOn('datastoreSync')
 
         project.task('addAmplifyPushToWorkspace') {
             if(project.file('./.idea/workspace.xml').exists()) {
@@ -221,6 +242,5 @@ class AmplifyTools implements Plugin<Project> {
                 }
             }
         }
-        project.amplifyPush.dependsOn('datastoreSync')
     }
 }
